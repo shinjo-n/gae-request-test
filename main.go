@@ -6,6 +6,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"io"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -14,7 +15,15 @@ func main() {
 
 	http.HandleFunc("/json", jsonHandlerFunc)
 
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	//	ポート番号を環境変数から取得
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	//	サービスを開始
+	log.Printf("Listening on port %s", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +71,9 @@ func jsonHandlerFunc(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	fmt.Printf("%v\n", jsonBody)
+	for k, v := range jsonBody {
+		fmt.Printf("%v : %v\n", k, v)
+	}
 
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("success"))
